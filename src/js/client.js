@@ -6,100 +6,41 @@ import Immutable from 'immutable';
 
 // Javascript the good parts
 
-const Counter = ({ value, incrementAction, decrementAction, removeAction }) => (
+const Traffic = ({state}) => (
   <div>
-    <h1>{ value }</h1>
-    <button onClick={ incrementAction }>+</button>
-    <button onClick={ decrementAction }>-</button>
-    <button onClick={ removeAction }>x</button>
+    <div class = "traffic-light">
+      <div class = {{state === 0 ? "red-light":"red light off"}}></div>
+      <div class = {{state === 1 ? "yellow-light":"yellow light off"}}></div>
+      <div class = {{state === 2 ? "green-light":"green light off"}}></div>
+    </div>
+    <button onClick= { () => store.dispatch({ type: 'CHANGELIGHT'})}></button>
   </div>
 );
-
-const CounterList = ({ list }) => (
-  <div>
-    {
-      list.map(
-        (value, i) => (
-          <Counter
-            key={ i }
-            value={ value }
-            index={ i }
-            incrementAction={
-              () => store.dispatch({
-                type: 'INCREMENT',
-                payload: { index: i }
-              })
-            }
-            decrementAction={
-              () => store.dispatch({
-                type: 'DECREMENT',
-                payload: { index: i }
-              })
-            }
-            removeAction={
-              () => store.dispatch({
-                type: 'REMOVE_COUNTER',
-                payload: {
-                  index: i
-                }
-              })
-            }
-          />
-        )
-      )
-    }
-    <button onClick={ () => store.dispatch({ type: 'ADD_COUNTER' }) }>Add counter</button>
-  </div>
-);
-
-const validateIndex = (index, list) => 0 <= index && index < list.size;
 
 // Reducer
-const counterList = (state = Immutable.List.of(), action) => {
-
-  if(typeof action.payload !== 'undefined'){
-    var { index } = action.payload;
-  }
-
-  switch(action.type){
-    case 'ADD_COUNTER':
-      return state.push(0);
-
-    case 'REMOVE_COUNTER':
-
-      if(validateIndex(index, state)){
-        return state.delete(index);
-      }
-
-      return state;
-
-    case 'INCREMENT':
-
-      if(validateIndex(index, state)){
-        return state.update(index, (v) => v + 1);
-      }
-
-      return state;
-
-    case 'DECREMENT':
-
-      if(validateIndex(index, state)){
-        return state.update(index,  (v) => v - 1);
-      }
-
-      return state;
-
-    default:
-      return state;
-  }
+const counterState = (state = 0, action) => {
+  if(action.type === 'CHANGELIGHT') {  
+    switch(state){
+      case 0:
+        return 2;
+      case 1:
+        return 0;
+      case 2:
+        return 1;
+      default;
+        return state;
+    }
 }
 
-// createStore: reducer --> store
-const store = createStore(counterList);
 
+const store = createStore(counterState);
+
+
+
+//render
 const render = () => {
   ReactDOM.render(
-    <CounterList list={ store.getState() } />,
+    <Traffic state={ store.getState() } />,
     document.getElementById('root')
   )
 }
